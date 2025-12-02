@@ -78,6 +78,7 @@ token NextToken(lexer *lex){
         case ':':return MakeToken(TYPE_COLON,":",1);
         case ';':return MakeToken(TYPE_SEMICOLON,";",1);
         case '\0':return MakeToken(TYPE_EOF,"\0",1);
+        case '$':break;
 
         default:
             fprintf(stderr,"Uncknow simvol.\n");
@@ -88,7 +89,7 @@ token NextToken(lexer *lex){
 
 int main()
 {
-    const char *code = "echo 5 *(32-7); MR_mystake_373";
+    const char *code = "echo 5 *(32-7);\n MR_mystake_373 $ponos";
     lexer lex;
     LexerInit(&lex,code);
     token t  = NextToken(&lex);

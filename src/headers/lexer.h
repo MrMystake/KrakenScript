@@ -21,6 +21,7 @@ typedef enum TokenType{
     TYPE_LBRACKET,  //[
     TYPE_RBRACKET,  //]
     TYPE_EOF,       //\0
+    TYPE_DOLLAR,    //$
     TYPE_IF,
     TYPE_ELSE,
     TYPE_WHILE,
@@ -42,6 +43,10 @@ typedef struct lexer{
     const char *code;
     int pos;
 }lexer;
+
+token MakeToken(TokenType type,const char*start,int leight);
+lexer* LexerInit(lexer *lex,const char*code);
+token NextToken(lexer *lex);
 
 #endif
 
