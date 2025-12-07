@@ -6,4 +6,7 @@ typedef struct List{
     struct List *next;
 }List;
 
+List list_append_value(List *list,void*stuff);
+int list_count(List *list);
+
 #endif

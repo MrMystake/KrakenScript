@@ -3,18 +3,11 @@
 #include <ctype.h>
 #include <string.h>
 
-token MakeToken(TokenType type,const char*start,int leight){
-    token t;
-    t.type = type;
-    t.start = start;
-    t.leight = leight;
-    return t;
-}
 
-lexer* LexerInit(lexer *lex,const char*code){
+lexer LexerInit(lexer *lex,const char*code){
     lex->code = code;
     lex->pos = 0;
-    return lex;
+    return *lex;
 }
 
 token NextToken(lexer *lex){
@@ -44,8 +37,8 @@ token NextToken(lexer *lex){
         }const kws[] = {
             {"if",TYPE_IF},
             {"else",TYPE_ELSE},
-            {"TRUE",TYPE_TRUE},
-            {"FALSE",TYPE_FALSE},
+            {"true",TYPE_TRUE},
+            {"false",TYPE_FALSE},
             {"while",TYPE_WHILE},
             {"return",TYPE_RETURN},
             {"func",TYPE_FUNCTION},
@@ -59,7 +52,7 @@ token NextToken(lexer *lex){
             if(strncmp(ident,kws[i].kw_name,len) == 0 &&  strlen(kws[i].kw_name) == len)
                 return MakeToken(kws[i].kw_type,ident,len);
         }
-        return MakeToken(TYPE_IDENT,ident,len);
+        return MakeToken(TYPE_STRING,ident,len);
     }
     lex->pos++;
     switch(c){
@@ -83,18 +76,4 @@ token NextToken(lexer *lex){
             fprintf(stderr,"Uncknow simvol.\n");
             break;
     }
-}
-
-
-int main()
-{
-    const char *code = "echo 5 *(32-7);\n MR_mystake_373 $ ponos,;:[]{}()\t / + - = if else while TRUE FALSE retuen func var";
-    lexer lex;
-    LexerInit(&lex,code);
-    token t  = NextToken(&lex);
-    while(t.type != TYPE_EOF){
-        printf("TOKEN type:%d  value:'%.*s'\n",t.type,t.leight,t.start);
-        t = NextToken(&lex);
-    }
-    return 0;
 }

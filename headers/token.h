@@ -1,9 +1,10 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef TOKEN_H
+#define TOKEN_H
+
 
 typedef enum TokenType{
     TYPE_NUMBER,
-    TYPE_VAR,
+    TYPE_STRING,
     TYPE_PLUS,      //+
     TYPE_MINUS,     //-
     TYPE_STAR,      // *
@@ -31,6 +32,7 @@ typedef enum TokenType{
     TYPE_FUNCTION,
     TYPE_ECHO,
     TYPE_IDENT,
+    TYPE_VAR,
 }TokenType;
 
 typedef struct token{
@@ -39,14 +41,6 @@ typedef struct token{
     int leight;
 }token;
 
-typedef struct lexer{
-    const char *code;
-    int pos;
-}lexer;
-
 token MakeToken(TokenType type,const char*start,int leight);
-lexer* LexerInit(lexer *lex,const char*code);
-token NextToken(lexer *lex);
 
 #endif
-

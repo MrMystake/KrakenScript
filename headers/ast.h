@@ -3,62 +3,76 @@
 
 
 #include "lexer.h"
-#include "../utils/list.h"
+#include "list.h"
+#include "token.h"
 
 //-------------------------------------
-//Expresion
+//            Expresion
 //-------------------------------------
+
+typedef struct Expression Expression;
+typedef struct Statement Statement;
+typedef struct StatementBlock StatementBlock;
 
 typedef enum ExpressionNodeType{
     EXPRESSION_NODE,
     EXPRESSION_STATEMENT_NODE,
-    EXPRESSION_NUMBER_NODE,
-    EXPRESSION_BOOLEAN_NODE,
-    EXPRESSION_STRING_NODE,
+    NUMBER_NODE,
+    BOOLEAN_NODE,
+    STRING_NODE,
+    BINARY_NODE,
 }ExpressionNodeType;
 
-typedef struct Expression{
-    token *token;
-    const char * token_literal;
-    void*node;
-}Expression;
 
 typedef struct ExpressionStatement{
-    token *token;
+    token token;
     Expression *expression;
 }ExpressionStatement;
 
 typedef struct {
-    token *token;
+    token token;
     int value;
 }NumberLiteral;
 
 typedef struct{
-    token *token;
+    token token;
     bool value;
 }BooleanLiteral;
 
 typedef struct{
-    token *token;
+    token token;
     const char* value;
 }StringLiteral;
 
 typedef struct{
-    token *token;
-    const char *operator;
+    token token;
+    TokenType operator;
     Expression *left;
     Expression *right;
 }BinaryExpr;
 
 typedef struct{
-    token *token;
+    token token;
     Expression *conditional;
     StatementBlock *if_block;
     StatementBlock *else_block;
 }ExpressionIf;
 
+typedef struct Expression{
+    token token;
+    ExpressionNodeType type;
+    const char * token_literal;
+    union{
+        NumberLiteral number;
+        BooleanLiteral boolean;
+        StringLiteral string;
+        BinaryExpr binary;
+        ExpressionIf exprIf;
+    }node;
+}Expression;
+
 //-------------------------------------
-//Statement
+//           Statement
 //-------------------------------------
 
 typedef enum StatementNodeType{

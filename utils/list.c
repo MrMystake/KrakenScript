@@ -1,13 +1,14 @@
-#include "list.h"
+#include "../headers/list.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-list list_append_value(List *list,void*stuff){
+List list_append_value(List *list,void*stuff){
     List *node = malloc(sizeof(List));
     node->stuff = stuff;
     node->next = NULL;
 
     if(list ==  NULL){
-        return node;
+        return *node;
     }
 
     List *indicate = list;
@@ -15,7 +16,7 @@ list list_append_value(List *list,void*stuff){
     indicate->next = node;
 
     free(node);
-    return list;
+    return *list;
 }
 
 int list_count(List *list){
