@@ -1,7 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-
+//Type for tokens
 typedef enum TokenType{
     TYPE_NUMBER,
     TYPE_STRING,
@@ -22,7 +22,7 @@ typedef enum TokenType{
     TYPE_LBRACKET,  //[
     TYPE_RBRACKET,  //]
     TYPE_EOF,       //\0
-    TYPE_DOLLAR,    //$
+    TYPE_EOL,       // \n
     TYPE_IF,
     TYPE_ELSE,
     TYPE_WHILE,
@@ -35,6 +35,7 @@ typedef enum TokenType{
     TYPE_VAR,
 }TokenType;
 
+//struct token
 typedef struct token{
     TokenType type;
     const char *start;

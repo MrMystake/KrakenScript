@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Appends a value to the end of a list.
+// Takes a pointer to the list and the value to add,
+// then updates the list structure accordingly.
+
 List list_append_value(List *list,void*stuff){
     List *node = malloc(sizeof(List));
     node->stuff = stuff;
@@ -18,6 +22,9 @@ List list_append_value(List *list,void*stuff){
     free(node);
     return *list;
 }
+
+// Returns the number of elements in a list.
+// Iterates through the list and counts all items.
 
 int list_count(List *list){
     int list_count;

@@ -6,13 +6,16 @@
 #include "list.h"
 #include "token.h"
 
+
+typedef struct Statement Statement;
+typedef struct StatementBlock StatementBlock;
+typedef struct Expression Expression;
+
 //-------------------------------------
 //            Expresion
 //-------------------------------------
 
-typedef struct Expression Expression;
-typedef struct Statement Statement;
-typedef struct StatementBlock StatementBlock;
+
 
 typedef enum ExpressionNodeType{
     EXPRESSION_NODE,
@@ -21,8 +24,18 @@ typedef enum ExpressionNodeType{
     BOOLEAN_NODE,
     STRING_NODE,
     BINARY_NODE,
+    VAR_IDENT,
 }ExpressionNodeType;
 
+//struct for node types
+typedef struct {
+    ExpressionNodeType type;
+    union{
+        int number;
+        const char* string;
+        bool boolean;
+    }value;
+}FactorValue;
 
 typedef struct ExpressionStatement{
     token token;
@@ -58,6 +71,11 @@ typedef struct{
     StatementBlock *else_block;
 }ExpressionIf;
 
+typedef struct{
+    token token;
+    const char *name;
+}VarName;
+
 typedef struct Expression{
     token token;
     ExpressionNodeType type;
@@ -68,6 +86,7 @@ typedef struct Expression{
         StringLiteral string;
         BinaryExpr binary;
         ExpressionIf exprIf;
+        VarName varName;
     }node;
 }Expression;
 
@@ -75,19 +94,14 @@ typedef struct Expression{
 //           Statement
 //-------------------------------------
 
+
 typedef enum StatementNodeType{
     PROGRAM_NODE,
     STATEMENT_NODE,
-    STATEMENT_BLOCK_NODE,
-    VAR_STATEMENT_NODE,
-    RETURN_STATEMENT_NODE,
+    BLOCK_NODE,
+    VAR_NODE,
+    RETURN_NODE,
 }StatementNodeType;
-
-typedef struct Statement{
-    token *token;
-    const char* token_literal;
-    void *node;
-}Statement;
 
 typedef struct StatementBlock{
     token *token;
@@ -99,13 +113,8 @@ typedef struct{
     Expression *return_value;
 }ReturnStatement;
 
-typedef struct{
-    token *token;
-    const char *name;
-}VarName;
 
 typedef struct{
-    token *token;
     VarName *name;
     Expression *value;
 }Variable;
@@ -127,5 +136,18 @@ typedef struct{
     const char*token_literal;
     List *statements;
 }Program;
+
+typedef struct Statement{
+    token *token;
+    StatementNodeType type;
+    union{
+        StatementBlock block;
+        ReturnStatement st_return;
+        Variable variable;
+        FunctionStatement func;
+        CallFunctionStatement call_func;
+        Program program;
+    }node;
+}Statement;
 
 #endif

@@ -1,15 +1,21 @@
+//-------------------------
+//          lexer
+//-------------------------
+
 #include "../headers/lexer.h"
+#include "../headers/token.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 
-
+//create Lexer
 lexer LexerInit(lexer *lex,const char*code){
     lex->code = code;
     lex->pos = 0;
     return *lex;
 }
 
+//goes through the entire code and creates tokens
 token NextToken(lexer *lex){
     const char* s = lex->code;
 
@@ -19,18 +25,21 @@ token NextToken(lexer *lex){
 
     char c = s[lex->pos];
 
+    //number token
     if(isdigit(c)){
         int start = lex->pos;
         while(isdigit(s[lex->pos])) lex->pos++;
         return MakeToken(TYPE_NUMBER,s + start,lex->pos - start);
     }
 
+    //words token
     if(isalpha(c)){
         int start = lex->pos;
         while(isalnum(s[lex->pos]) || s[lex->pos] == '_') lex->pos++;
         size_t len = lex->pos - start;
         const char* ident = s + start;
     
+        //reserved words
         struct keyword {
             const char * kw_name;
             TokenType kw_type;
@@ -55,6 +64,8 @@ token NextToken(lexer *lex){
         return MakeToken(TYPE_STRING,ident,len);
     }
     lex->pos++;
+    
+    //single tokens
     switch(c){
         case '+':return MakeToken(TYPE_PLUS,"+",1);
         case '-':return MakeToken(TYPE_MINUS,"-",1);
@@ -71,9 +82,6 @@ token NextToken(lexer *lex){
         case ':':return MakeToken(TYPE_COLON,":",1);
         case ';':return MakeToken(TYPE_SEMICOLON,";",1);
         case '\0':return MakeToken(TYPE_EOF,"\0",1);
-
-        default:
-            fprintf(stderr,"Uncknow simvol.\n");
-            break;
+        case '\n':return MakeToken(TYPE_EOL,"\n",1);
     }
 }

@@ -1,3 +1,7 @@
+//--------------------------
+//          Parser
+//--------------------------
+
 #include "../headers/lexer.h"
 #include "../headers/ast.h"
 #include "../headers/token.h"
@@ -8,11 +12,11 @@
 #include <string.h>
 
 
+//additional functions
 void next(Parser *p){
     p->cur = p->next;
     p->next = NextToken(p->lex);
 }
-
 
 int match(Parser *p, TokenType type){
     if (p->cur.type == type) {
@@ -27,16 +31,27 @@ bool StringBool(Parser *p){
     return false;
 }
 
+//create Parser
 void ParserInit(Parser *p,lexer *lex){
     p->lex = lex;
     p->cur = NextToken(lex);
     p->next = NextToken(lex);
 }
 
+
+// Parses a full expression.
+// This is the top-level expression parser that handles operator
+// precedence by calling lower-level parsers (sum, term, factor).
+// It returns the final expression tree representing the entire expression.
 Expression* parserExpression(Parser *p){
     return parserSum(p);
 }
 
+
+// Parses the smallest unit of an expression (a "factor").
+// A factor can be a number, string, boolean, identifier, or
+// an expression inside parentheses. This function reads the
+// current token and returns the corresponding expression node.
 Expression* parserFactor(Parser *p){
     if(match(p,TYPE_NUMBER)){
         Expression *node = malloc(sizeof(Expression));
@@ -82,6 +97,10 @@ Expression* parserFactor(Parser *p){
 }
 
 
+// Parses a term in an expression.
+// A term usually handles multiplication, division, and modulo.
+// It takes the left factor, checks for * / % operators,
+// and builds a binary expression tree while such operators appear.
 Expression* parserTerm(Parser *p){
     Expression *left = parserFactor(p);
 
@@ -103,6 +122,11 @@ Expression* parserTerm(Parser *p){
     return left;
 }
 
+
+//// Parses a sum-level expression.
+// This handles addition and subtraction. It first parses a term,
+// then checks for + or - operators and builds a binary expression
+// tree while these operators are present.
 Expression* parserSum(Parser *p){
     Expression *left = parserTerm(p);
 
