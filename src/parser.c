@@ -147,3 +147,127 @@ Expression* parserSum(Parser *p){
     }
     return left;
 }
+
+
+//var ident = value
+Statement* parserVar(Parser *p){
+    if(match(p,TYPE_VAR)){
+        Token VarToken = p->cur;
+        next(p);
+    }
+    VarName *ident = malloc(sizeof(VarName));
+    if(match(p,TYPE_IDENT)){
+        ident->token = p->cur;
+        ident->name = p->cur.start;
+        next(p);
+    }
+    else{
+        fprintf(stderr,"Error:After var must be ident");
+        free(ident);
+        return NULL;
+    }
+    if(match(p,TYPE_ASIGN)){
+        next(p);
+    }
+    else{
+        fprintf(stderr,"Error:After ident must be asign");
+        free(ident);
+        return NULL;
+    }
+    Expression* value = parserExpression(p);
+
+    Variable* var = malloc(sizeof(Variable));
+    
+    var->name = ident;
+    var->value = value;
+
+    Statement* st_var = malloc(sizeof(Statement));
+    st_var->token = VarToken;
+    st_var->type = VAR_NODE;
+    st_var->node.variable = var;
+
+    if(match(p,TYPE_EOL))
+        return st_var;
+}
+//return value
+Statement* parserReturn(Parser *p){
+    ReturnStatement* ret = malloc(sizeof(ReturnStatement));
+    Token ReturnToken = p->cur;
+    if(match(p,TYPE_RETURN)){
+        next(p);
+    }
+    Expression* value = parserExpression(p);
+    ret->token = p->cur;
+    ret->return_value = value;
+
+    Statement* st_return = malloc(sizeof(Statement));
+    st_return->token = ReturnToken;
+    st_return->type = RETURN_NODE;
+    st_return->node.st_return = ret;
+
+    if(match(p,TYPE_EOL))
+        return st_return;
+}
+
+
+Statement* parserStatement(Parser *p){
+    if(match(p,TYPE_VAR)){
+        return parserVar(p);
+    }
+    else if(match(p,TYPE_RETURN)){
+        return parserReturn(p);
+    }
+    else{
+        return parserExprStatement(p);
+    }
+}
+//x + x ;name()
+Statement* parserExprStatement(Parser *p){
+    Expression* expression = parserExpression(p);
+
+    ExpressionStatement* ExprState = malloc(sizeof(ExpressionStatement));
+    ExprState->token = p->cur;
+    ExprState->expression = expression;
+
+    Statement* st = malloc(sizeof(Statement));
+    st->token = p->cur;
+    st->type = EXPRESSION_STATEMENT_NODE;
+    st->st_expr = ExprState;
+
+    return st;
+}
+
+Statement* parserBlockStatement(Parser *p){
+    if (!match(p, TYPE_LBRACE)) {
+        return NULL;
+    }
+    StatementBlock* block = malloc(sizeof(StatementBlock));
+    Token token = p->cur;
+    block->token = token;
+    block->statements = NULL;
+
+    Statement* st;
+    for(;p->cur.type != TYPE_EOF && p->cur.type !=TYPE_RBRACE ;){
+        st = parserStatement(p);
+        if(st != NULL){
+            block->statements = list_append_value(block->statements,st);
+        }
+        next(p);
+    }
+    Statement* st_block = malloc(sizeof(Statement));
+    st_block->token = token;
+    st_block->type = BLOCK_NODE;
+    st_block->node.block = block;
+
+    return st_block;
+}
+
+//не дописал еще
+Program* parserProgram(parser *p){
+    Program* program = malloc(sizeof(Program));
+    if(program == NULL){
+        return program;
+    }
+    return program;
+}
+

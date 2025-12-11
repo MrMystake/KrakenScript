@@ -6,10 +6,11 @@
 #include "../headers/parser.h"
 #include "../headers/token.h"
 #include "../headers/Interpreter.h"
+#include "../headers/object.h"
 #include <stdio.h>
 
 // Evaluates a factor node and returns its value.
-FactorValue evalFactor(Expression *expr){
+FactorValue evalFactor(Expression *expr,Env *env){
     FactorValue result;
     result.type = expr->type;
     if (expr->type == NUMBER_NODE){
@@ -20,6 +21,9 @@ FactorValue evalFactor(Expression *expr){
     }
     else if(expr->type == BOOLEAN_NODE){
         result.value.boolean = expr->node.boolean.value;
+    }
+    if(expr->type == VAR_NODE){
+        return GetEnv(env,expr->node.VarName.name);
     }
     return result;
 }
@@ -43,5 +47,4 @@ int evalExpression(Expression *expr){
                 return evalExpression(expr->node.binary.left) / evalExpression(expr->node.binary.right);
         }
     }
-
 }

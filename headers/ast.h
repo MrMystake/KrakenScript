@@ -19,7 +19,6 @@ typedef struct Expression Expression;
 
 typedef enum ExpressionNodeType{
     EXPRESSION_NODE,
-    EXPRESSION_STATEMENT_NODE,
     NUMBER_NODE,
     BOOLEAN_NODE,
     STRING_NODE,
@@ -37,10 +36,6 @@ typedef struct {
     }value;
 }FactorValue;
 
-typedef struct ExpressionStatement{
-    token token;
-    Expression *expression;
-}ExpressionStatement;
 
 typedef struct {
     token token;
@@ -101,7 +96,15 @@ typedef enum StatementNodeType{
     BLOCK_NODE,
     VAR_NODE,
     RETURN_NODE,
+    EXPRESSION_STATEMENT_NODE,
+    FUNCTION_NODE,
+    CALL_FUNCTION_NODE,
 }StatementNodeType;
+
+typedef struct ExpressionStatement{
+    token token;
+    Expression *expression;
+}ExpressionStatement;
 
 typedef struct StatementBlock{
     token *token;
@@ -141,6 +144,7 @@ typedef struct Statement{
     token *token;
     StatementNodeType type;
     union{
+        ExpressionStatement st_expr;
         StatementBlock block;
         ReturnStatement st_return;
         Variable variable;

@@ -32,7 +32,13 @@ token NextToken(lexer *lex){
         return MakeToken(TYPE_NUMBER,s + start,lex->pos - start);
     }
 
-    //words token
+    if(isalpha(c)){
+        int start = lex->pos;
+        while(isalpha(s[lex->pos])) lex->pos++;
+        return MakeToken(TYPE_STRING,s + start,lex->pos - start);
+    }
+
+    //ident token
     if(isalpha(c)){
         int start = lex->pos;
         while(isalnum(s[lex->pos]) || s[lex->pos] == '_') lex->pos++;
@@ -61,7 +67,7 @@ token NextToken(lexer *lex){
             if(strncmp(ident,kws[i].kw_name,len) == 0 &&  strlen(kws[i].kw_name) == len)
                 return MakeToken(kws[i].kw_type,ident,len);
         }
-        return MakeToken(TYPE_STRING,ident,len);
+        return MakeToken(TYPE_IDENT,ident,len);
     }
     lex->pos++;
     

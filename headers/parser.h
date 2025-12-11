@@ -33,4 +33,11 @@ Expression* parserTerm(Parser *p);
 Expression* parserExpression(Parser *p);
 Expression* parserSum(Parser *p);
 
+Statement* parserVar(Parser *p);
+Statement* parserReturn(Parser *p);
+Statement* parserStatement(Parser *p);
+Statement* parserExprStatement(Parser *p);
+Statement* parserBlockStatement(Parser *p);
+
+Program* parserProgram(parser *p);
 #endif
