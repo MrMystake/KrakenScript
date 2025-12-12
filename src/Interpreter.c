@@ -22,9 +22,6 @@ FactorValue evalFactor(Expression *expr,Env *env){
     else if(expr->type == BOOLEAN_NODE){
         result.value.boolean = expr->node.boolean.value;
     }
-    if(expr->type == VAR_NODE){
-        return GetEnv(env,expr->node.VarName.name);
-    }
     return result;
 }
 

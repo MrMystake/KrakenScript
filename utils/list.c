@@ -6,13 +6,13 @@
 // Takes a pointer to the list and the value to add,
 // then updates the list structure accordingly.
 
-List list_append_value(List *list,void*stuff){
+List* list_append_value(List *list,void*stuff){
     List *node = malloc(sizeof(List));
     node->stuff = stuff;
     node->next = NULL;
 
     if(list ==  NULL){
-        return *node;
+        return node;
     }
 
     List *indicate = list;
@@ -20,7 +20,7 @@ List list_append_value(List *list,void*stuff){
     indicate->next = node;
 
     free(node);
-    return *list;
+    return list;
 }
 
 // Returns the number of elements in a list.

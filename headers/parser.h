@@ -37,7 +37,11 @@ Statement* parserVar(Parser *p);
 Statement* parserReturn(Parser *p);
 Statement* parserStatement(Parser *p);
 Statement* parserExprStatement(Parser *p);
-Statement* parserBlockStatement(Parser *p);
+StatementBlock* parserBlockStatement(Parser *p);
+Statement* parserFunction(Parser *p);
+List* parserFuncParameters(Parser *p);
+Statement* parserCallFunc(Parser *p);
 
-Program* parserProgram(parser *p);
+
+Program* parserProgram(Parser *p);
 #endif

@@ -151,8 +151,8 @@ Expression* parserSum(Parser *p){
 
 //var ident = value
 Statement* parserVar(Parser *p){
+    token VarToken = p->cur;
     if(match(p,TYPE_VAR)){
-        Token VarToken = p->cur;
         next(p);
     }
     VarName *ident = malloc(sizeof(VarName));
@@ -192,7 +192,7 @@ Statement* parserVar(Parser *p){
 //return value
 Statement* parserReturn(Parser *p){
     ReturnStatement* ret = malloc(sizeof(ReturnStatement));
-    Token ReturnToken = p->cur;
+    token ReturnToken = p->cur;
     if(match(p,TYPE_RETURN)){
         next(p);
     }
@@ -232,42 +232,142 @@ Statement* parserExprStatement(Parser *p){
     Statement* st = malloc(sizeof(Statement));
     st->token = p->cur;
     st->type = EXPRESSION_STATEMENT_NODE;
-    st->st_expr = ExprState;
+    st->node.st_expr = ExprState;
 
     return st;
 }
 
-Statement* parserBlockStatement(Parser *p){
+StatementBlock* parserBlockStatement(Parser *p){
     if (!match(p, TYPE_LBRACE)) {
         return NULL;
     }
     StatementBlock* block = malloc(sizeof(StatementBlock));
-    Token token = p->cur;
+    token token = p->cur;
     block->token = token;
     block->statements = NULL;
 
     Statement* st;
-    for(;p->cur.type != TYPE_EOF && p->cur.type !=TYPE_RBRACE ;){
+    for(;p->cur.type != TYPE_EOF && p->cur.type != TYPE_RBRACE ;){
         st = parserStatement(p);
         if(st != NULL){
             block->statements = list_append_value(block->statements,st);
         }
         next(p);
     }
-    Statement* st_block = malloc(sizeof(Statement));
-    st_block->token = token;
-    st_block->type = BLOCK_NODE;
-    st_block->node.block = block;
+    if(match(p,TYPE_RBRACE)){
+        next(p);
+    }
 
-    return st_block;
+    return block;
+}
+// func name(parametrs){
+//  body}
+Statement* parserFunction(Parser *p){
+    FunctionStatement* func = malloc(sizeof(FunctionStatement));
+    StatementBlock* block = malloc(sizeof(StatementBlock));
+    token Ftoken = p->cur;
+
+    if(match(p,TYPE_FUNCTION)){
+        func->token = Ftoken;
+        next(p);
+    }
+
+    if(match(p,TYPE_IDENT)){
+        func->name = p->cur.start;
+        next(p);
+    }
+
+    if(match(p,TYPE_LPAREN)){
+        next(p);
+        func->parameters = parserFuncParameters(p);
+    }
+    else{
+        fprintf(stderr,"Error:Expected (\n");
+        return NULL;
+    }
+
+    if(!match(p,TYPE_RPAREN)){
+        func->body = parserBlockStatement(p);
+    }
+    else{
+        fprintf(stderr,"Error:Expected (\n");
+        return NULL;
+    }
+
+    Statement *st = malloc(sizeof(Statement));
+    st->token = Ftoken;
+    st->type = FUNCTION_NODE;
+    st->node.func = func;
+
+    return st;
+}
+List* parserFuncParameters(Parser *p){
+    List* params = NULL;
+    if(match(p,TYPE_RPAREN)){
+        next(p);
+        return params;
+    }
+    if(!match(p,TYPE_IDENT)){
+        fprintf(stderr,"Error: expected parameter name\n");
+        return NULL;
+    }
+    params = list_append_value(params,p->cur.start);
+    next(p);
+    while(match(p,TYPE_COMMA)){
+        next(p);
+        if(!match(p,TYPE_IDENT)){
+            fprintf(stderr,"Error: expected identifier after ','\n");
+            return NULL;
+        }
+        params = list_append_value(params,p->cur.start);
+        next(p);
+    }
+    if(match(p,TYPE_RPAREN)){
+        fprintf(stderr, "Error: expected ')'\n");
+        return NULL;
+    }
+    return params;
+}
+//name(num_1,num_2)
+Statement* parserCallFunc(Parser *p){
+    token CFtoken = p->cur;
+    CallFunctionStatement* call_func = malloc(sizeof(CallFunctionStatement));
+    Statement *st = malloc(sizeof(Statement));
+
+    if(match(p,TYPE_IDENT)){
+        call_func->token = CFtoken;
+        call_func->func_name = p->cur.start;
+        next(p);
+    }
+    else{
+        fprintf(stderr,"Error: expected parameter name\n");
+        return NULL;
+    }
+
+    if(match(p,TYPE_LPAREN)){
+        next(p);
+        call_func->arguments = parserFuncParameters(p);
+    }
+    else{
+        fprintf(stderr,"Error:Expected (\n");
+        return NULL;
+    }
+    st->token = CFtoken;
+    st->type = CALL_FUNCTION_NODE;
+    st->node.call_func = call_func;
+    
+    return st;
 }
 
-//не дописал еще
-Program* parserProgram(parser *p){
+Program* parserProgram(Parser *p){
     Program* program = malloc(sizeof(Program));
-    if(program == NULL){
-        return program;
+    Statement *st;
+    program->statements = NULL;
+    for(;p->cur.type != TYPE_EOF;){
+        st = parserStatement(p);
+        if(st != NULL){
+            program->statements = list_append_value(program->statements,st);
+        }
     }
     return program;
 }
-

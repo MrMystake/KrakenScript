@@ -71,6 +71,7 @@ typedef struct{
     const char *name;
 }VarName;
 
+
 typedef struct Expression{
     token token;
     ExpressionNodeType type;
@@ -107,12 +108,12 @@ typedef struct ExpressionStatement{
 }ExpressionStatement;
 
 typedef struct StatementBlock{
-    token *token;
+    token token;
     List *statements;
 }StatementBlock;
 
 typedef struct{
-    token *token;
+    token token;
     Expression *return_value;
 }ReturnStatement;
 
@@ -123,34 +124,34 @@ typedef struct{
 }Variable;
 
 typedef struct{
-    token *token;
+    token token;
     const char *name;
     List *parameters;
     StatementBlock *body;
 }FunctionStatement;
 
 typedef struct{
-    token *token;
-    Expression *func;
+    token token;
+    const char* func_name;
     List *arguments;
 }CallFunctionStatement;
 
 typedef struct{
-    const char*token_literal;
+    const char *token_literal;
     List *statements;
 }Program;
 
 typedef struct Statement{
-    token *token;
+    token token;
     StatementNodeType type;
     union{
-        ExpressionStatement st_expr;
-        StatementBlock block;
-        ReturnStatement st_return;
-        Variable variable;
-        FunctionStatement func;
-        CallFunctionStatement call_func;
-        Program program;
+        ExpressionStatement *st_expr;
+        StatementBlock *block;
+        ReturnStatement *st_return;
+        Variable *variable;
+        FunctionStatement *func;
+        CallFunctionStatement *call_func;
+        Program *program;
     }node;
 }Statement;
 
