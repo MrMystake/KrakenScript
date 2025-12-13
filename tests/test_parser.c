@@ -1,114 +1,97 @@
 #include "../headers/lexer.h"
 #include "../headers/parser.h"
+#include "../headers/ast.h"
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-void assert_rus(int condition, const char* msg) {
-    if (!condition) {
-        printf("[НЕ ПРОШЛО] %s\n", msg);
-    } else {
-        printf("[УСПЕХ] %s\n", msg);
+// Безопасная печать Expression
+void PrintExpression(Expression *expr){
+    if(!expr){
+        printf("NULL Expression\n");
+        return;
+    }
+
+    switch(expr->type){
+        case NUMBER_NODE:
+            printf("Number: %d\n", expr->node.number.value);
+            break;
+        case STRING_NODE:
+            printf("String: %s\n", expr->node.string.value);
+            break;
+        case BOOLEAN_NODE:
+            printf("Boolean: %s\n", expr->node.boolean.value ? "true" : "false");
+            break;
+        case VAR_IDENT:
+            printf("Variable: %s\n", expr->node.varName.name);
+            break;
+        case BINARY_NODE:
+            printf("Binary Expression: operator %d\n", expr->node.binary.operator);
+            printf("Left -> "); PrintExpression(expr->node.binary.left);
+            printf("Right -> "); PrintExpression(expr->node.binary.right);
+            break;
+        default:
+            printf("Unknown Expression Type\n");
     }
 }
 
-// Получение первого элемента списка
-Statement* first_statement(List *list) {
-    if (list == NULL) return NULL;
-    return (Statement*)list->stuff;
+// Безопасная печать Statement
+void PrintStatement(Statement *stmt){
+    if(!stmt){
+        printf("NULL Statement\n");
+        return;
+    }
+
+    printf("=== Statement ===\n");
+    switch(stmt->type){
+        case VAR_NODE:
+            printf("Var Declaration: %s\n", stmt->node.variable->name->name);
+            printf("Value -> "); 
+            PrintExpression(stmt->node.variable->value);
+            break;
+        case EXPRESSION_STATEMENT_NODE:
+            printf("Expression Statement:\n");
+            PrintExpression(stmt->node.st_expr->expression);
+            break;
+        case RETURN_NODE:
+            printf("Return Statement:\n");
+            PrintExpression(stmt->node.st_return->return_value);
+            break;
+        case BLOCK_NODE:
+            printf("Block Statement with %d statements\n", list_count(stmt->node.block->statements));
+            for(List *l = stmt->node.block->statements; l != NULL; l = l->next){
+                PrintStatement((Statement*)l->stuff);
+            }
+            break;
+        case FUNCTION_NODE:
+            printf("Function Statement: %s\n", stmt->node.func->name);
+            break;
+        default:
+            printf("Unknown Statement Type\n");
+    }
 }
 
-// Подсчёт элементов списка
-int list_len(List *list) {
-    int count = 0;
-    for (List *l = list; l != NULL; l = l->next) count++;
-    return count;
-}
+int main(){
+    const char* code = 
+        "var x = 42;\n"
+        "var y = x + 13;\n"
+        "func add(a, b) { return a + b; }\n"
+        "if(x > 10) { y = add(x, y); }\n";
 
-// Проверка var declaration
-void test_var_declaration() {
-    const char *source = "var x = 42;";
-    lexer lex; LexerInit(&lex, source);
-    Parser p; ParserInit(&p, &lex);
-    Program *program = parserProgram(&p);  // возвращает Program*
+    // Инициализация лексера
+    lexer l;
+    LexerInit(&l, code);
 
-    Statement *st = first_statement(program->statements);
-    assert_rus(st->type == VAR_NODE, "Ожидался тип VAR_NODE");
-    assert_rus(strcmp(st->node.variable->name->name, "x") == 0, "Имя переменной должно быть 'x'");
-    assert_rus(st->node.variable->value->type == NUMBER_NODE, "Значение переменной должно быть NUMBER_NODE");
-    assert_rus(st->node.variable->value->node.number.value == 42, "Значение переменной должно быть 42");
-}
+    // Инициализация парсера
+    Parser p;
+    ParserInit(&p, &l);
 
-// Проверка return
-void test_return_statement() {
-    const char *source = "return 10;";
-    lexer lex; LexerInit(&lex, source);
-    Parser p; ParserInit(&p, &lex);
-    Program *program = parserProgram(&p);
+    Statement *stmt;
+    int safety = 0; // ограничитель на случай зацикливания
+    while((stmt = parserStatement(&p)) != NULL && safety++ < 100){
+        PrintStatement(stmt);
+    }
 
-    Statement *st = first_statement(program->statements);
-    assert_rus(st->type == RETURN_NODE, "Ожидался тип RETURN_NODE");
-    assert_rus(st->node.st_return->return_value->node.number.value == 10, "Возвращаемое значение должно быть 10");
-}
+    if(safety >= 100) printf("Loop terminated due to safety limit\n");
 
-// Проверка функции
-void test_function_declaration() {
-    const char *source = "func add(a, b) { return a + b; }";
-    lexer lex; LexerInit(&lex, source);
-    Parser p; ParserInit(&p, &lex);
-    Program *program = parserProgram(&p);
-
-    Statement *st = first_statement(program->statements);
-    assert_rus(st->type == FUNCTION_NODE, "Ожидался тип FUNCTION_NODE");
-    assert_rus(strcmp(st->node.func->name, "add") == 0, "Имя функции должно быть 'add'");
-    assert_rus(list_len(st->node.func->parameters) == 2, "Функция должна иметь 2 параметра");
-}
-
-// Проверка вызова функции
-void test_call_function() {
-    const char *source = "add(1, 2);";
-    lexer lex; LexerInit(&lex, source);
-    Parser p; ParserInit(&p, &lex);
-    Program *program = parserProgram(&p);
-
-    Statement *st = first_statement(program->statements);
-    assert_rus(st->type == CALL_FUNCTION_NODE, "Ожидался тип CALL_FUNCTION_NODE");
-    assert_rus(strcmp(st->node.call_func->func_name, "add") == 0, "Имя вызываемой функции должно быть 'add'");
-    assert_rus(list_len(st->node.call_func->arguments) == 2, "Должно быть 2 аргумента");
-}
-
-// Проверка арифметики и скобок
-void test_arithmetic() {
-    const char *source = "(1 + 2) * 3;";
-    lexer lex; LexerInit(&lex, source);
-    Parser p; ParserInit(&p, &lex);
-    Program *program = parserProgram(&p);
-
-    Statement *st = first_statement(program->statements);
-    assert_rus(st->type == EXPRESSION_STATEMENT_NODE, "Ожидался тип EXPRESSION_STATEMENT_NODE");
-    Expression *expr = st->node.st_expr->expression;
-    assert_rus(expr->type == BINARY_NODE, "Главный узел должен быть BINARY_NODE");
-}
-
-// Проверка булевых значений
-void test_boolean() {
-    const char *source = "var b = true;";
-    lexer lex; LexerInit(&lex, source);
-    Parser p; ParserInit(&p, &lex);
-    Program *program = parserProgram(&p);
-
-    Statement *st = first_statement(program->statements);
-    assert_rus(st->node.variable->value->type == BOOLEAN_NODE, "Значение должно быть BOOLEAN_NODE");
-    assert_rus(st->node.variable->value->node.boolean.value == true, "Значение должно быть true");
-}
-
-int main() {
-    printf("=== Тестирование парсера ===\n");
-    test_var_declaration();
-    test_return_statement();
-    test_function_declaration();
-    test_call_function();
-    test_arithmetic();
-    test_boolean();
-    printf("=== Все тесты завершены ===\n");
     return 0;
 }

@@ -53,8 +53,8 @@ Expression* parserExpression(Parser *p){
 // an expression inside parentheses. This function reads the
 // current token and returns the corresponding expression node.
 Expression* parserFactor(Parser *p){
+    Expression *node = malloc(sizeof(Expression));
     if(match(p,TYPE_NUMBER)){
-        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = NUMBER_NODE;
@@ -65,7 +65,6 @@ Expression* parserFactor(Parser *p){
         return node;
     }
     else if(match(p,TYPE_STRING)){
-        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = STRING_NODE;
@@ -76,7 +75,6 @@ Expression* parserFactor(Parser *p){
         return node;
     }
     else if(match(p,TYPE_TRUE) || match(p,TYPE_FALSE)){
-        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = BOOLEAN_NODE;
@@ -86,14 +84,25 @@ Expression* parserFactor(Parser *p){
         next(p);
         return node;
     }
+    else if(match(p,TYPE_IDENT)){
+        node->token = p->cur;
+        node->token_literal = p->cur.start;
+        node->type = VAR_IDENT;
+        node->node.varName.token = p->cur;
+        node->node.varName.name = p->cur.start;
+
+        next(p);
+        return node;
+    }
     else if(match(p,TYPE_LPAREN)){
         next(p);
-        Expression *node = parserExpression(p);
+        node = parserExpression(p);
         match(p,TYPE_RPAREN);
 
         next(p);
         return node;
     }
+    return node;
 }
 
 
@@ -155,7 +164,7 @@ Statement* parserVar(Parser *p){
     if(match(p,TYPE_VAR)){
         next(p);
     }
-    VarName *ident = malloc(sizeof(VarName));
+    VarName *ident = malloc(sizeof(VarName)); ////
     if(match(p,TYPE_IDENT)){
         ident->token = p->cur;
         ident->name = p->cur.start;
@@ -174,30 +183,29 @@ Statement* parserVar(Parser *p){
         free(ident);
         return NULL;
     }
-    Expression* value = parserExpression(p);
+    Expression* value = parserExpression(p); ///
 
-    Variable* var = malloc(sizeof(Variable));
+    Variable* var = malloc(sizeof(Variable)); ///
     
     var->name = ident;
     var->value = value;
 
-    Statement* st_var = malloc(sizeof(Statement));
+    Statement* st_var = malloc(sizeof(Statement)); ///
     st_var->token = VarToken;
     st_var->type = VAR_NODE;
     st_var->node.variable = var;
 
-    if(match(p,TYPE_EOL))
-        return st_var;
+    return st_var;
 }
 //return value
 Statement* parserReturn(Parser *p){
-    ReturnStatement* ret = malloc(sizeof(ReturnStatement));
+    ReturnStatement* ret = malloc(sizeof(ReturnStatement)); ///
     token ReturnToken = p->cur;
     if(match(p,TYPE_RETURN)){
         next(p);
     }
-    Expression* value = parserExpression(p);
-    ret->token = p->cur;
+    Expression* value = parserExpression(p); ///
+    ret->token = ReturnToken;
     ret->return_value = value;
 
     Statement* st_return = malloc(sizeof(Statement));
@@ -205,31 +213,18 @@ Statement* parserReturn(Parser *p){
     st_return->type = RETURN_NODE;
     st_return->node.st_return = ret;
 
-    if(match(p,TYPE_EOL))
-        return st_return;
+    return st_return;
 }
 
 
-Statement* parserStatement(Parser *p){
-    if(match(p,TYPE_VAR)){
-        return parserVar(p);
-    }
-    else if(match(p,TYPE_RETURN)){
-        return parserReturn(p);
-    }
-    else{
-        return parserExprStatement(p);
-    }
-}
 //x + x ;name()
 Statement* parserExprStatement(Parser *p){
-    Expression* expression = parserExpression(p);
-
+    Expression* expression = parserExpression(p);///
+    Statement *st = malloc(sizeof(Statement));///
     ExpressionStatement* ExprState = malloc(sizeof(ExpressionStatement));
     ExprState->token = p->cur;
     ExprState->expression = expression;
 
-    Statement* st = malloc(sizeof(Statement));
     st->token = p->cur;
     st->type = EXPRESSION_STATEMENT_NODE;
     st->node.st_expr = ExprState;
@@ -241,9 +236,9 @@ StatementBlock* parserBlockStatement(Parser *p){
     if (!match(p, TYPE_LBRACE)) {
         return NULL;
     }
-    StatementBlock* block = malloc(sizeof(StatementBlock));
-    token token = p->cur;
-    block->token = token;
+    StatementBlock* block = malloc(sizeof(StatementBlock));//
+    token Btoken = p->cur;
+    block->token = Btoken;
     block->statements = NULL;
 
     Statement* st;
@@ -252,7 +247,8 @@ StatementBlock* parserBlockStatement(Parser *p){
         if(st != NULL){
             block->statements = list_append_value(block->statements,st);
         }
-        next(p);
+        if(p->cur.type != TYPE_EOF && !match(p, TYPE_RBRACE))
+            next(p);
     }
     if(match(p,TYPE_RBRACE)){
         next(p);
@@ -264,7 +260,6 @@ StatementBlock* parserBlockStatement(Parser *p){
 //  body}
 Statement* parserFunction(Parser *p){
     FunctionStatement* func = malloc(sizeof(FunctionStatement));
-    StatementBlock* block = malloc(sizeof(StatementBlock));
     token Ftoken = p->cur;
 
     if(match(p,TYPE_FUNCTION)){
@@ -311,7 +306,7 @@ List* parserFuncParameters(Parser *p){
         fprintf(stderr,"Error: expected parameter name\n");
         return NULL;
     }
-    params = list_append_value(params,p->cur.start);
+    params = list_append_value(params, (void*)p->cur.start);
     next(p);
     while(match(p,TYPE_COMMA)){
         next(p);
@@ -319,10 +314,10 @@ List* parserFuncParameters(Parser *p){
             fprintf(stderr,"Error: expected identifier after ','\n");
             return NULL;
         }
-        params = list_append_value(params,p->cur.start);
+        params = list_append_value(params, (void*)p->cur.start);
         next(p);
     }
-    if(match(p,TYPE_RPAREN)){
+    if(!match(p,TYPE_RPAREN)){
         fprintf(stderr, "Error: expected ')'\n");
         return NULL;
     }
@@ -359,6 +354,20 @@ Statement* parserCallFunc(Parser *p){
     return st;
 }
 
+Statement* parserStatement(Parser *p){
+    if(match(p,TYPE_VAR)){
+        return parserVar(p);
+    }
+    else if(match(p,TYPE_RETURN)){
+        return parserReturn(p);
+    }
+    else if(match(p,TYPE_FUNCTION)){
+        return parserFunction(p);
+    }
+    else{
+        return parserExprStatement(p);
+    }
+}
 Program* parserProgram(Parser *p){
     Program* program = malloc(sizeof(Program));
     Statement *st;

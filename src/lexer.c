@@ -18,31 +18,29 @@ lexer LexerInit(lexer *lex,const char*code){
 //goes through the entire code and creates tokens
 token NextToken(lexer *lex){
     const char* s = lex->code;
+    if(s[lex->pos] == '\0') {
+        return MakeToken(TYPE_EOF, "", 0);
+    }
 
     while(s[lex->pos] == ' ' || s[lex->pos] ==  '\n' || s[lex->pos] == '\t'){
         lex->pos++;
     }
-
     char c = s[lex->pos];
-
+    if(c == '\0'){
+        return MakeToken(TYPE_EOF, "", 0);
+    }
     //number token
     if(isdigit(c)){
         int start = lex->pos;
-        while(isdigit(s[lex->pos])) lex->pos++;
+        while(s[lex->pos] != '\0' && isdigit(s[lex->pos])) lex->pos++;
         return MakeToken(TYPE_NUMBER,s + start,lex->pos - start);
     }
 
-    if(isalpha(c)){
-        int start = lex->pos;
-        while(isalpha(s[lex->pos])) lex->pos++;
-        return MakeToken(TYPE_STRING,s + start,lex->pos - start);
-    }
-
     //ident token
-    if(isalpha(c)){
+    if(isalpha(c) || c == '_'){
         int start = lex->pos;
-        while(isalnum(s[lex->pos]) || s[lex->pos] == '_') lex->pos++;
-        size_t len = lex->pos - start;
+        while(s[lex->pos] != '\0' && (isalnum(s[lex->pos]) || s[lex->pos] == '_')) lex->pos++;
+        int len = (size_t)(lex->pos - start);
         const char* ident = s + start;
     
         //reserved words
@@ -61,9 +59,9 @@ token NextToken(lexer *lex){
             {"echo",TYPE_ECHO},
         };
 
-        const  size_t kws_count = sizeof kws / sizeof kws[0];
+        const int kws_count = sizeof kws / sizeof kws[0];
 
-        for(size_t i = 0; i < kws_count; i++){
+        for(int i = 0; i < kws_count; i++){
             if(strncmp(ident,kws[i].kw_name,len) == 0 &&  strlen(kws[i].kw_name) == len)
                 return MakeToken(kws[i].kw_type,ident,len);
         }
@@ -87,7 +85,7 @@ token NextToken(lexer *lex){
         case ',':return MakeToken(TYPE_COMMA,",",1);
         case ':':return MakeToken(TYPE_COLON,":",1);
         case ';':return MakeToken(TYPE_SEMICOLON,";",1);
-        case '\0':return MakeToken(TYPE_EOF,"\0",1);
         case '\n':return MakeToken(TYPE_EOL,"\n",1);
     }
+    return MakeToken(TYPE_EOF,"\0",1);
 }

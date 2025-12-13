@@ -19,7 +19,6 @@ List* list_append_value(List *list,void*stuff){
     while(indicate->next != NULL) indicate = indicate->next;
     indicate->next = node;
 
-    free(node);
     return list;
 }
 
