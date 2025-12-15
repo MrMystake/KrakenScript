@@ -3,9 +3,7 @@
 #include "../headers/token.h"
 #include "../headers/list.h"
 #include "../headers/parser.h"
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 // Parses the smallest unit of an expression (a "factor").
 Expression* parserFactor(Parser *p){

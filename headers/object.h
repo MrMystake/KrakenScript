@@ -12,6 +12,7 @@ typedef enum ObjectTypes{
     OBJ_RETURN,
     OBJ_ERROR,
     OBJ_NOT_FOUND,
+    OBJ_FUNCTION,
 }ObjectTypes;
 
 typedef struct Env{

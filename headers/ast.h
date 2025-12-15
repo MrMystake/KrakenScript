@@ -61,13 +61,6 @@ typedef struct{
 
 typedef struct{
     token token;
-    Expression *conditional;
-    StatementBlock *if_block;
-    StatementBlock *else_block;
-}ExpressionIf;
-
-typedef struct{
-    token token;
     const char *name;
 }Ident;
 
@@ -81,7 +74,6 @@ typedef struct Expression{
         BooleanLiteral boolean;
         StringLiteral string;
         BinaryExpr binary;
-        ExpressionIf exprIf;
         Ident ident;
     }node;
 }Expression;
@@ -100,6 +92,7 @@ typedef enum StatementNodeType{
     EXPRESSION_STATEMENT_NODE,
     FUNCTION_NODE,
     CALL_FUNCTION_NODE,
+    IF_NODE,
 }StatementNodeType;
 
 typedef struct ExpressionStatement{
@@ -141,6 +134,14 @@ typedef struct{
     List *statements;
 }Program;
 
+typedef struct{
+    token token;
+    Expression *conditional;
+    StatementBlock *if_block;
+    StatementBlock *else_block;
+}StatementIf;
+
+
 typedef struct Statement{
     token token;
     StatementNodeType type;
@@ -151,6 +152,7 @@ typedef struct Statement{
         Variable *variable;
         FunctionStatement *func;
         CallFunctionStatement *call_func;
+        ExpressionIf st_if;
         Program *program;
     }node;
 }Statement;
