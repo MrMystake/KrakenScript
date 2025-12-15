@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Parser parameters  for function declaration and arguments for Call function
+
 List* parserFuncParameters(Parser *p){
     List* params = NULL;
     if(match(p,TYPE_RPAREN)){

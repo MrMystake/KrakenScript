@@ -8,12 +8,9 @@
 #include <string.h>
 
 // Parses the smallest unit of an expression (a "factor").
-// A factor can be a number, string, boolean, identifier, or
-// an expression inside parentheses. This function reads the
-// current token and returns the corresponding expression node.
 Expression* parserFactor(Parser *p){
-    Expression *node = malloc(sizeof(Expression));
     if(match(p,TYPE_NUMBER)){
+        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = NUMBER_NODE;
@@ -23,7 +20,8 @@ Expression* parserFactor(Parser *p){
         next(p);
         return node;
     }
-    else if(match(p,TYPE_STRING)){
+    if(match(p,TYPE_STRING)){
+        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = STRING_NODE;
@@ -33,7 +31,8 @@ Expression* parserFactor(Parser *p){
         next(p);
         return node;
     }
-    else if(match(p,TYPE_TRUE) || match(p,TYPE_FALSE)){
+    if(match(p,TYPE_TRUE) || match(p,TYPE_FALSE)){
+        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = BOOLEAN_NODE;
@@ -43,17 +42,19 @@ Expression* parserFactor(Parser *p){
         next(p);
         return node;
     }
-    else if(match(p,TYPE_IDENT)){
+    if(match(p,TYPE_IDENT)){
+        Expression *node = malloc(sizeof(Expression));
         node->token = p->cur;
         node->token_literal = p->cur.start;
         node->type = VAR_IDENT;
-        node->node.varName.token = p->cur;
-        node->node.varName.name = p->cur.start;
+        node->node.ident.token = p->cur;
+        node->node.ident.name = p->cur.start;
 
         next(p);
         return node;
     }
     else if(match(p,TYPE_LPAREN)){
+        Expression *node = malloc(sizeof(Expression));
         next(p);
         node = parserExpression(p);
         match(p,TYPE_RPAREN);
@@ -61,5 +62,6 @@ Expression* parserFactor(Parser *p){
         next(p);
         return node;
     }
-    return node;
+    next(p);
+    return NULL;
 }

@@ -7,10 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//// Parses a sum-level expression.
-// This handles addition and subtraction. It first parses a term,
-// then checks for + or - operators and builds a binary expression
-// tree while these operators are present.
+// Parses a addition and subtraction
 Expression* parserSum(Parser *p){
     Expression *left = parserTerm(p);
 

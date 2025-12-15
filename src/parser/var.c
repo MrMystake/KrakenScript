@@ -7,13 +7,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Parser the variable
+
 //var ident = value
 Statement* parserVar(Parser *p){
     token VarToken = p->cur;
     if(match(p,TYPE_VAR)){
         next(p);
     }
-    VarName *ident = malloc(sizeof(VarName));
+    Ident *ident = malloc(sizeof(Ident));
     if(match(p,TYPE_IDENT)){
         ident->token = p->cur;
         ident->name = p->cur.start;

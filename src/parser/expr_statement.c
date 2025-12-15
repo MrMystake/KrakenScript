@@ -7,14 +7,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-//x + x ;name()
+//Parser ExpressionStatement
+
+// For example: x + y
+// name()
 Statement* parserExprStatement(Parser *p){
     Expression* expression = parserExpression(p);
-    Statement *st = malloc(sizeof(Statement));
+    if(expression == NULL){
+        free(expression);
+        return NULL;
+    }
     ExpressionStatement* ExprState = malloc(sizeof(ExpressionStatement));
     ExprState->token = p->cur;
     ExprState->expression = expression;
-
+    
+    Statement *st  = malloc(sizeof(Statement));
     st->token = p->cur;
     st->type = EXPRESSION_STATEMENT_NODE;
     st->node.st_expr = ExprState;

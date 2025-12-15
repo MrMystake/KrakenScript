@@ -31,3 +31,11 @@ int list_count(List *list){
     for(list_count = 0;indicate != NULL;list_count++) indicate = indicate->next;
     return list_count;
 }
+
+void free_list(List *list){
+    while(list != NULL){
+        List *next = list->next;
+        free(list);
+        list = next;
+    }
+}

@@ -5,24 +5,7 @@
 #include "../headers/parser.h"
 #include <stdlib.h>
 
-
-void FreeExpression(Expression *expr){
-    if(expr == NULL){
-        return;
-    }
-    switch(expr->type){
-        case NUMBER_NODE:
-        case STRING_NODE:
-        case BOOLEAN_NODE:
-        case VAR_IDENT:
-            break;
-        case:BINARY_NODE
-            FreeExpression(expr->node.binary.left);
-            FreeExpression(expr->node.binary.right);
-            break;
-    }
-    free(expr);
-}
+//Frees all  memory
 
 void FreeStatement(Statement *st){
     if(st == NULL){
@@ -44,21 +27,39 @@ void FreeStatement(Statement *st){
             break;
         case FUNCTION_NODE:
             FreeBlockStatement(st->node.func->body);
-            FreeList(st->node.func->parameters);
+            free_list(st->node.func->parameters);
             free(st->node.func);
             break;
         case CALL_FUNCTION_NODE:
-            FreeList(st->node.call_func->arguments);
+            free_list(st->node.call_func->arguments);
             free(st->node.call_func);
+            break;
+        default:
             break;
     }
     free(st);
 }
 
-void FreeList(List *list){
-    return;
+void FreeExpression(Expression *expr){
+    if(expr == NULL){
+        return;
+    }
+    switch(expr->type){
+        case NUMBER_NODE:
+        case STRING_NODE:
+        case BOOLEAN_NODE:
+        case VAR_IDENT:
+            break;
+        case BINARY_NODE:
+            FreeExpression(expr->node.binary.left);
+            FreeExpression(expr->node.binary.right);
+            break;
+    }
+    free(expr);
 }
 
-void FreeBlockStatement(List *list){
-    return;
+void FreeBlockStatement(StatementBlock *block){
+    if(block == NULL) return;
+    free_list(block->statements);
+    free(block);
 }

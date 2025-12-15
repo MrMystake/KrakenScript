@@ -62,7 +62,7 @@ List* parserFuncParameters(Parser *p);
 Statement* parserCallFunc(Parser *p);
 
 //statement.c
-Statement* parserStatement(Parser *p)
+Statement* parserStatement(Parser *p);
 
 //program.c
 Program* parserProgram(Parser *p);
@@ -71,6 +71,6 @@ Program* parserProgram(Parser *p);
 void FreeExpression(Expression *expr);
 void FreeStatement(Statement *st);
 void FreeList(List *list);
-void FreeBlockStatement(List *list);
+void FreeBlockStatement(StatementBlock *block);
 
 #endif

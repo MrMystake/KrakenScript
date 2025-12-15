@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Parser return statement
+
 //return value
 Statement* parserReturn(Parser *p){
     ReturnStatement* ret = malloc(sizeof(ReturnStatement));

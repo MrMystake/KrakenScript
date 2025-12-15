@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Parser block statement
+//For example function {body}
+
 StatementBlock* parserBlockStatement(Parser *p){
     if (!match(p, TYPE_LBRACE)) {
         return NULL;
@@ -15,19 +18,21 @@ StatementBlock* parserBlockStatement(Parser *p){
     token Btoken = p->cur;
     block->token = Btoken;
     block->statements = NULL;
+    next(p);
 
-    Statement* st;
     for(;p->cur.type != TYPE_EOF && p->cur.type != TYPE_RBRACE ;){
-        st = parserStatement(p);
+         Statement *st = parserStatement(p);
         if(st != NULL){
             block->statements = list_append_value(block->statements,st);
         }
-        if(p->cur.type != TYPE_EOF && !match(p, TYPE_RBRACE))
+        else{
             next(p);
+        }
+
     }
     if(match(p,TYPE_RBRACE)){
         next(p);
     }
-
+    
     return block;
 }

@@ -7,10 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Parses a term in an expression.
-// A term usually handles multiplication, division, and modulo.
-// It takes the left factor, checks for * / % operators,
-// and builds a binary expression tree while such operators appear.
+// Parses a term in an expression
+// A term usually handles multiplication, division
 Expression* parserTerm(Parser *p){
     Expression *left = parserFactor(p);
 

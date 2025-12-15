@@ -7,7 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//Parser Statement
 Statement* parserStatement(Parser *p){
+    if(match(p, TYPE_SEMICOLON) || match(p,TYPE_RBRACE)){
+        next(p);
+    }
     if(match(p,TYPE_VAR)){
         return parserVar(p);
     }
@@ -20,4 +25,7 @@ Statement* parserStatement(Parser *p){
     else{
         return parserExprStatement(p);
     }
+    fprintf(stderr,"Parser Error: unexpected token  %s",p->cur.start);
+    next(p);
+    return NULL;
 }

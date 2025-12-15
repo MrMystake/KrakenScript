@@ -69,7 +69,7 @@ typedef struct{
 typedef struct{
     token token;
     const char *name;
-}VarName;
+}Ident;
 
 
 typedef struct Expression{
@@ -82,7 +82,7 @@ typedef struct Expression{
         StringLiteral string;
         BinaryExpr binary;
         ExpressionIf exprIf;
-        VarName varName;
+        Ident ident;
     }node;
 }Expression;
 
@@ -119,7 +119,7 @@ typedef struct{
 
 
 typedef struct{
-    VarName *name;
+    Ident *name;
     Expression *value;
 }Variable;
 

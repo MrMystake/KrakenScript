@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Parser Call function
+
 //name(num_1,num_2)
 Statement* parserCallFunc(Parser *p){
     token CFtoken = p->cur;

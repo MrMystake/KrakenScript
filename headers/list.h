@@ -8,5 +8,6 @@ typedef struct List{
 
 List* list_append_value(List *list,void*stuff);
 int list_count(List *list);
+void free_list(List *list);
 
 #endif
